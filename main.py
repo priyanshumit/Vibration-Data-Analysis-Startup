@@ -70,7 +70,7 @@ def fft_main(window, run_fft, output_file_file1, output_file_file2):
     else:
         w = 1
 
-    a = [a[i] * w[i] for i in range(len(a))]
+    b = [b[i] * w[i] for i in range(len(b))]
     # a = [x * w for x in a]
 
     ########################################################################
