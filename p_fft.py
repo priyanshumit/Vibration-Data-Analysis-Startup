@@ -14,6 +14,7 @@
 from __future__ import print_function
 
 import sys
+from tkinter import Label
 
 # if sys.version_info[0] == 2:
 #     print ("Python 2.x")
@@ -105,7 +106,7 @@ class FFT:
 
 ########################################################################
 
-class READ_DATA:
+class READ_DATA_FFT:
 
     def __init__(self):
         pass
@@ -119,14 +120,15 @@ class READ_DATA:
 
     def read_and_stats(self):
 
-        label = "Enter the time history filename"
+        # label = "Enter the time history filename"
+        label = "acceleration_data.csv"
 
         a, b, num = read_two_columns_from_dialog(label)
 
         sr, dt, ave, sd, rms, skew, kurtosis, dur = signal_stats(a, b, num)
 
-        sr, dt = READ_DATA.check_data(a, b, num, sr, dt)
+        sr, dt = READ_DATA_FFT.check_data(a, b, num, sr, dt)
 
-        return a, b, num, sr, dt, dur
+        return a, b, num, sr, dt, dur, ave, rms
 
 #######################################################################

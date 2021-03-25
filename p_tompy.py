@@ -9,35 +9,38 @@
 ###########################################################################
 
 from __future__ import print_function
-    
+
 import sys
+from tkinter.filedialog import Directory
 
 if sys.version_info[0] == 2:
-    print ("Python 2.x")
+    print("Python 2.x")
     import Tkinter as tk
-    from tkFileDialog import askopenfilename 
+    from tkFileDialog import askopenfilename
 
-           
+
 if sys.version_info[0] == 3:
-    print ("Python 3.x")    
-    import tkinter as tk 
-    from tkinter.filedialog import askopenfilename 
+    print("Python 3.x")
+    import tkinter as tk
+    from tkinter.filedialog import askopenfilename
 
 
 import os
 import re
+import datetime
 import numpy as np
 
 from sys import stdin
 
 from scipy import stats
 
-from math import pi,sqrt,floor
+from math import pi, sqrt, floor
 
 
 import matplotlib.pyplot as plt
 
 ###########################################################################
+
 
 def read_one_column_from_dialog(label):
     """
@@ -48,246 +51,258 @@ def read_one_column_from_dialog(label):
     Return the total numbers of lines as num.
     """
     while(1):
-        root = tk.Tk() ; root.withdraw()
-        input_file_path = askopenfilename(parent=root,title=label)
+        root = tk.Tk()
+        root.withdraw()
+        input_file_path = askopenfilename(parent=root, title=label)
 
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
 #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
+            print("This file exists")
+            print(" ")
+            infile = open(file_path, "rb")
             lines = infile.readlines()
             infile.close()
 
             b = []
-            num=0
+            num = 0
             for line in lines:
-#
-                if sys.version_info[0] == 3:            
-                    line = line.decode(encoding='UTF-8')            
-            
+                #
+                if sys.version_info[0] == 3:
+                    line = line.decode(encoding='UTF-8')
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
+                        line = line.replace(",", " ")
                         b.append(float(line))
-                        num=num+1
-            break;
+                        num = num+1
+            break
 
-            b=np.array(b)
+            b = np.array(b)
 
-            print ("\n samples = %d " % num)
-            
-    return b,num
+            print("\n samples = %d " % num)
+
+    return b, num
 
 ###############################################################################
+
 
 def read_two_columns_from_dialog(label):
     """
     Read data from file using a dialog box
-    """ 
+    """
     while(1):
-        root = tk.Tk() ; root.withdraw()
-        input_file_path = askopenfilename(parent=root,title=label)
+        root = tk.Tk()
+        root.withdraw()
+        # input_file_path = askopenfilename(parent=root, title=label)
 
-        file_path = input_file_path.rstrip('\n')
+        # file_path = input_file_path.rstrip('\n')
+        file_path = label
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
 #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
-            lines = infile.readlines()
+            print("This file exists")
+            print(" ")
+            infile = open(file_path, "rb")
+            # lines = infile.readlines()
+            lines = []
+            for line in (infile.readlines()[-1024:]):
+                lines.append(line)
             infile.close()
 
             a = []
             b = []
-            num=0
+            num = 0
             for line in lines:
-#
-                if sys.version_info[0] == 3:            
-                    line = line.decode(encoding='UTF-8')             
-            
+                #
+                if sys.version_info[0] == 3:
+                    line = line.decode(encoding='UTF-8')
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
-                        col1,col2=line.split()
+                        line = line.replace(",", " ")
+                        col1, col2 = line.split()
                         a.append(float(col1))
                         b.append(float(col2))
-                        num=num+1
+                        num = num+1
             break
 
-            a=np.array(a)
-            b=np.array(b)
+            a = np.array(a)
+            b = np.array(b)
 
-            print ("\n samples = %d " % num)
-            
-    return a,b,num
+            print("\n samples = %d " % num)
+
+    return a, b, num
 
 ###############################################################################
 
-def read_two_columns_from_dialog_alt(label,pt):
+
+def read_two_columns_from_dialog_alt(label, pt):
     """
     Read data from file using a dialog box
-    """ 
+    """
     while(1):
 
-        input_file_path = askopenfilename(parent=pt,title=label)
+        input_file_path = askopenfilename(parent=pt, title=label)
 
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
 #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
+            print("ts")
+            print(" ")
+            infile = open(file_path, "rb")
             lines = infile.readlines()
             infile.close()
 
             a = []
             b = []
-            num=0
+            num = 0
             for line in lines:
-#
-                if sys.version_info[0] == 3:            
-                    line = line.decode(encoding='UTF-8') 
-            
+                #
+                if sys.version_info[0] == 3:
+                    line = line.decode(encoding='UTF-8')
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
-                        col1,col2=line.split()
+                        line = line.replace(",", " ")
+                        col1, col2 = line.split()
                         a.append(float(col1))
                         b.append(float(col2))
-                        num=num+1
+                        num = num+1
             break
 
-            a=np.array(a)
-            b=np.array(b)
+            a = np.array(a)
+            b = np.array(b)
 
-            print ("\n samples = %d " % num)
-            
-    return a,b,num
-    
+            print("\n samples = %d " % num)
+
+    return a, b, num
+
 ###############################################################################
+
 
 def read_three_columns_from_dialog(label):
     """
     Read data from file using a dialog box
-    """ 
+    """
     while(1):
-        root = tk.Tk() ; root.withdraw()
-        input_file_path = askopenfilename(parent=root,title=label)
+        root = tk.Tk()
+        root.withdraw()
+        input_file_path = askopenfilename(parent=root, title=label)
 
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
 #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
+            print("This file exists")
+            print(" ")
+            infile = open(file_path, "rb")
             lines = infile.readlines()
             infile.close()
 
             a = []
             b = []
             c = []
-            num=0
+            num = 0
             for line in lines:
-#
-                if sys.version_info[0] == 3:            
-                    line = line.decode(encoding='UTF-8') 
-                    
+                #
+                if sys.version_info[0] == 3:
+                    line = line.decode(encoding='UTF-8')
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
-                        col1,col2,col3=line.split()
+                        line = line.replace(",", " ")
+                        col1, col2, col3 = line.split()
                         a.append(float(col1))
                         b.append(float(col2))
-                        c.append(float(col3))                        
-                        num=num+1
+                        c.append(float(col3))
+                        num = num+1
             break
 
-            a=np.array(a)
-            b=np.array(b)
-            c=np.array(c)            
+            a = np.array(a)
+            b = np.array(b)
+            c = np.array(c)
 
-            print ("\n samples = %d " % num)
-            
-    return a,b,c,num
+            print("\n samples = %d " % num)
+
+    return a, b, c, num
 
 ###########################################################################
+
 
 def read_array(label_name):
     """
     Read a 2D array.
     """
     while(1):
-        print (" ")
-        label = 'Enter the ' +label_name+ ' matrix filename'
-        root = tk.Tk() ; root.withdraw()
-        input_file_path = askopenfilename(parent=root,title=label)
+        print(" ")
+        label = 'Enter the ' + label_name + ' matrix filename'
+        root = tk.Tk()
+        root.withdraw()
+        input_file_path = askopenfilename(parent=root, title=label)
 
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
  #
         if os.path.exists(file_path):
-            print ("This file exists. Reading...")
-            print (" ")
+            print("This file exists. Reading...")
+            print(" ")
             read_data = np.loadtxt(file_path)
             break
     return read_data
@@ -304,57 +319,58 @@ def read_three_columns():
     while(1):
         print(" ")
         print("Enter the input filename: ")
-        input_file_path =stdin.readline()
+        input_file_path = stdin.readline()
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
  #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
+            print("This file exists")
+            print(" ")
+            infile = open(file_path, "rb")
             lines = infile.readlines()
             infile.close()
 
             a = []
             b = []
             c = []
-            num=0
+            num = 0
             for line in lines:
-#            
-                if sys.version_info[0] == 3:            
-                    line = line.decode(encoding='UTF-8')             
-            
+                #
+                if sys.version_info[0] == 3:
+                    line = line.decode(encoding='UTF-8')
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
-                        col1,col2,col3=line.split()
+                        line = line.replace(",", " ")
+                        col1, col2, col3 = line.split()
                         a.append(float(col1))
                         b.append(float(col2))
                         c.append(float(col3))
-                        num=num+1
+                        num = num+1
             break
 
-            a=np.array(a)
-            b=np.array(b)
-            c=np.array(c)
+            a = np.array(a)
+            b = np.array(b)
+            c = np.array(c)
 
-            print ("\n samples = %d " % num)
-    return a,b,c,num
+            print("\n samples = %d " % num)
+    return a, b, c, num
 
 ###########################################################################
+
 
 def read_two_columns():
     """
@@ -367,54 +383,55 @@ def read_two_columns():
     while(1):
         print(" ")
         print("Enter the input filename: ")
-        input_file_path =stdin.readline()
+        input_file_path = stdin.readline()
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
  #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
+            print("This file exists")
+            print(" ")
+            infile = open(file_path, "rb")
             lines = infile.readlines()
             infile.close()
 
             a = []
             b = []
-            num=0
+            num = 0
             for line in lines:
-#
-                if sys.version_info[0] == 3:            
-                    line = line.decode(encoding='UTF-8')             
-            
+                #
+                if sys.version_info[0] == 3:
+                    line = line.decode(encoding='UTF-8')
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
-                        col1,col2=line.split()
+                        line = line.replace(",", " ")
+                        col1, col2 = line.split()
                         a.append(float(col1))
                         b.append(float(col2))
-                        num=num+1
+                        num = num+1
             break
 
-            a=np.array(a)
-            b=np.array(b)
+            a = np.array(a)
+            b = np.array(b)
 
-            print ("\n samples = %d " % num)
-    return a,b,num
+            print("\n samples = %d " % num)
+    return a, b, num
 
 ###########################################################################
+
 
 def read_one_column():
     """
@@ -427,52 +444,53 @@ def read_one_column():
     while(1):
         print(" ")
         print("Enter the input filename: ")
-        input_file_path =stdin.readline()
+        input_file_path = stdin.readline()
         file_path = input_file_path.rstrip('\n')
 #
         if not os.path.exists(file_path):
-            print ("This file doesn't exist")
+            print("This file doesn't exist")
  #
         if os.path.exists(file_path):
-            print ("This file exists")
-            print (" ")
-            infile = open(file_path,"rb")
+            print("This file exists")
+            print(" ")
+            infile = open(file_path, "rb")
             lines = infile.readlines()
             infile.close()
 
             b = []
-            num=0
+            num = 0
             for line in lines:
-#
-                if sys.version_info[0] == 3:            
+                #
+                if sys.version_info[0] == 3:
                     line = line.decode(encoding='UTF-8')
-                    
+
                 if re.search(r"(\d+)", line):  # matches a digit
-                    iflag=0
+                    iflag = 0
                 else:
-                    iflag=1 # did not find digit
+                    iflag = 1  # did not find digit
 #
                 if re.search(r"#", line):
-                    iflag=1
+                    iflag = 1
 #
-                if iflag==0:
-                    line=line.lower()
+                if iflag == 0:
+                    line = line.lower()
                     if re.search(r"([a-d])([f-z])", line):  # ignore header lines
-                        iflag=1
+                        iflag = 1
                     else:
-                        line = line.replace(","," ")
+                        line = line.replace(",", " ")
                         b.append(float(line))
-                        num=num+1
-            break;
+                        num = num+1
+            break
 
-            b=np.array(b)
+            b = np.array(b)
 
-            print ("\n samples = %d " % num)
-    return b,num
+            print("\n samples = %d " % num)
+    return b, num
 
 ###########################################################################
 
-def signal_stats(a,b,num):
+
+def signal_stats(a, b, num):
     """
     a is the time column.
     b is the amplitude column.
@@ -487,57 +505,57 @@ def signal_stats(a,b,num):
     kurtosis - peakedness
          dur - duration
     """
-    bmax=max(b)
-    bmin=min(b)
+    bmax = max(b)
+    bmin = min(b)
 
     ave = np.mean(b)
 
-    dur = a[num-1]-a[0];
+    dur = a[num-1]-a[0]
 
-    dt=dur/float(num-1)
-    sr=1/dt
+    dt = dur/float(num-1)
+    sr = 1/dt
 
+    rms = np.sqrt(np.var(b))
+    sd = np.std(b)
 
-    rms=np.sqrt(np.var(b))
-    sd=np.std(b)
+    skewness = stats.skew(b)
+    kurtosis = stats.kurtosis(b, fisher=False)
 
-    skewness=stats.skew(b)
-    kurtosis=stats.kurtosis(b,fisher=False)
+    print("\n max = %8.4g  min=%8.4g \n" % (bmax, bmin))
 
-    print ("\n max = %8.4g  min=%8.4g \n" % (bmax,bmin))
+    print("     mean = %8.4g " % ave)
+    print("  std dev = %8.4g " % sd)
+    print("      rms = %8.4g " % rms)
+    print(" skewness = %8.4g " % skewness)
+    print(" kurtosis = %8.4g " % kurtosis)
 
-    print ("     mean = %8.4g " % ave)
-    print ("  std dev = %8.4g " % sd)
-    print ("      rms = %8.4g " % rms)
-    print (" skewness = %8.4g " % skewness)
-    print (" kurtosis = %8.4g " % kurtosis)
-
-    print ("\n  start = %8.4g sec  end = %8.4g sec" % (a[0],a[num-1]))
-    print ("    dur = %8.4g sec \n" % dur)
-    return sr,dt,ave,sd,rms,skewness,kurtosis,dur
+    print("\n  start = %8.4g sec  end = %8.4g sec" % (a[0], a[num-1]))
+    print("    dur = %8.4g sec \n" % dur)
+    return sr, dt, ave, sd, rms, skewness, kurtosis, dur
 
 ###########################################################################
 
-def differentiate_function(y,n,dt):
+
+def differentiate_function(y, n, dt):
     """
     y is a 1-D array.
     n is the length of y
     dt is the time step
     Return: v is the differentiated functino
-    """    
-    ddt=12.*dt
-    
-    v=np.zeros(n,'f')
+    """
+    ddt = 12.*dt
 
-    v[0]=( -y[2]+4.*y[1]-3.*y[0] )/(2.*dt)
-    v[1]=( -y[3]+4.*y[2]-3.*y[1] )/(2.*dt)
+    v = np.zeros(n, 'f')
 
-    for i in range (2,n-2):
-        v[i]=( -y[i+2] +8.*y[i+1] -8.*y[i-1] +y[i-2] ) / ddt
-    
-    v[n-2]=( y[n-2]-y[n-4] )/(2.*dt)
-    v[n-1]=( y[n-2]-y[n-3] )/dt          
-    
+    v[0] = (-y[2]+4.*y[1]-3.*y[0])/(2.*dt)
+    v[1] = (-y[3]+4.*y[2]-3.*y[1])/(2.*dt)
+
+    for i in range(2, n-2):
+        v[i] = (-y[i+2] + 8.*y[i+1] - 8.*y[i-1] + y[i-2]) / ddt
+
+    v[n-2] = (y[n-2]-y[n-4])/(2.*dt)
+    v[n-1] = (y[n-2]-y[n-3])/dt
+
     return v
 
 ###########################################################################
@@ -548,114 +566,121 @@ def squareEach(input_matrix):
     input_matrix is a 1-D array.
     Return: sumMatrix is the sum of the squares
     """
-    matrix_sq=[i * i for i in input_matrix]
-    sumMatrix=sum(matrix_sq)
+    matrix_sq = [i * i for i in input_matrix]
+    sumMatrix = sum(matrix_sq)
     return sumMatrix
 
 ########################################################################
+
 
 def cubeEach(input_matrix):
     """
     input_matrix is a 1-D array.
     Return: sumMatrix is the sum of the cubes
     """
-    matrix_3=[i**3 for i in input_matrix]
-    sumMatrix=sum(matrix_3)
+    matrix_3 = [i**3 for i in input_matrix]
+    sumMatrix = sum(matrix_3)
     return sumMatrix
 
 ########################################################################
+
 
 def quadEach(input_matrix):
     """
     input_matrix is a 1-D array.
     Return: sumMatrix is the sum of the quads
     """
-    matrix_4=[i**4 for i in input_matrix]
-    sumMatrix=sum(matrix_4)
+    matrix_4 = [i**4 for i in input_matrix]
+    sumMatrix = sum(matrix_4)
     return sumMatrix
 
 ########################################################################
 
-def sample_rate_check(a,b,num,sr,dt):
-    dtmin=1e+50
-    dtmax=0
+
+def sample_rate_check(a, b, num, sr, dt):
+    dtmin = 1e+50
+    dtmax = 0
 
     for i in range(1, num-1):
-        if (a[i]-a[i-1])<dtmin:
-            dtmin=a[i]-a[i-1];
-            if (a[i]-a[i-1])>dtmax:
-                dtmax=a[i]-a[i-1];
+        if (a[i]-a[i-1]) < dtmin:
+            dtmin = a[i]-a[i-1]
+            if (a[i]-a[i-1]) > dtmax:
+                dtmax = a[i]-a[i-1]
 
-    if(dtmin>10e-20):
-        srmax=float(1/dtmin)
+    if(dtmin > 10e-20):
+        srmax = float(1/dtmin)
     else:
-        srmax=0
+        srmax = 0
         print("\n *** Warning: repeated time points ***  \n")
-    
-    if(dtmax>10e-20):
-        srmin=float(1/dtmax)
-    else:    
-        srmin=0
 
-    print ("  dtmin = %8.4g sec" % dtmin)
-    print ("     dt = %8.4g sec" % dt)
-    print ("  dtmax = %8.4g sec \n" % dtmax)   
+    if(dtmax > 10e-20):
+        srmin = float(1/dtmax)
+    else:
+        srmin = 0
 
-    print ("  srmax = %8.4g samples/sec" % srmax)
-    print ("     sr = %8.4g samples/sec" % sr)
-    print ("  srmin = %8.4g samples/sec" % srmin)
+    print("  dtmin = %8.4g sec" % dtmin)
+    print("     dt = %8.4g sec" % dt)
+    print("  dtmax = %8.4g sec \n" % dtmax)
 
-    if((srmax-srmin) > 0.01*sr):
-        print(" ")
-        print(" Warning: sample rate difference ")
-        sr = None
-        while not sr:
-            try:
-                print(" Enter new sample rate ")
-                s = stdin.readline()
-                sr=float(s)
-                dt=1/sr
-            except ValueError:
-                print ('Invalid Number')
-    return sr,dt
+    print("  srmax = %8.4g samples/sec" % srmax)
+    print("     sr = %8.4g samples/sec" % sr)
+    print("  srmin = %8.4g samples/sec" % srmin)
+
+    # if((srmax-srmin) > 0.01*sr):
+    #     print(" ")
+    #     print(" Warning: sample rate difference ")
+    #     sr = None
+    #     while not sr:
+    #         try:
+    #             print(" Enter new sample rate ")
+    #             s = stdin.readline()
+    #             sr = float(s)
+    #             dt = 1/sr
+    #         except ValueError:
+    #             print('Invalid Number')
+    return sr, dt
 
 ########################################################################
 
+
 def GetInteger2():
     nnn = None
-    while nnn != 1 and nnn !=2:
+    while nnn != 1 and nnn != 2:
         try:
-            s=stdin.readline()
+            s = stdin.readline()
             nnn = int(s)
         except ValueError:
-            print ('Invalid Number. Enter integer. ')
+            print('Invalid Number. Enter integer. ')
     return nnn
+
 
 def GetInteger3():
     nnn = None
-    while nnn != 1 and nnn !=2 and nnn !=3:
+    while nnn != 1 and nnn != 2 and nnn != 3:
         try:
             s = stdin.readline()
-            nnn=int(s)
+            nnn = int(s)
         except ValueError:
-            print ('Invalid Number. Enter integer.')
+            print('Invalid Number. Enter integer.')
     return nnn
 
+
 def GetInteger_n(m):
-    iflag=0
-    while(iflag==0):
+    iflag = 0
+    while(iflag == 0):
         try:
             s = stdin.readline()
-            nnn=int(s)
-            for i in range (1,m+1):
-                if nnn==i:
-                    iflag=1
-                    break;
+            nnn = int(s)
+            for i in range(1, m+1):
+                if nnn == i:
+                    iflag = 1
+                    break
         except ValueError:
-            print ('Invalid Number. Enter integer.')
+            print('Invalid Number. Enter integer.')
     return nnn
 
 #########################################################################
+
 
 def enter_initial(iu):
     """
@@ -664,106 +689,109 @@ def enter_initial(iu):
     d0 = initial displacement
     """
     print(" ")
-    if(iu==1):
+    if(iu == 1):
         print(" Enter initial velocity (in/sec)")
     else:
         print(" Enter initial velocity (m/sec)")
 
-    v0=enter_float()
+    v0 = enter_float()
 
-    if(iu==1):
+    if(iu == 1):
         print(" Enter initial displacement (in)")
     else:
         print(" Enter initial displacement (m)")
 
-    d0=enter_float()
+    d0 = enter_float()
 
-    return v0,d0
+    return v0, d0
 
 #########################################################################
+
 
 def enter_damping():
     """
     Select damping input method.
     Return: damping ratio & Q
     """
-    print (" Select damping input type ")
-    print ("   1=damping ratio ")
-    print ("   2=Q ")
+    print(" Select damping input type ")
+    print("   1=damping ratio ")
+    print("   2=Q ")
 
     idamp = GetInteger2()
 
-    print (" ")
+    print(" ")
 
-    if idamp==1:
-        print (" Enter damping ratio ")
+    if idamp == 1:
+        print(" Enter damping ratio ")
     else:
-        print (" Enter amplification factor (Q) ")
+        print(" Enter amplification factor (Q) ")
 
     damp_num = None
 
     while not damp_num:
         try:
-            s =stdin.readline()
+            s = stdin.readline()
             damp_num = float(s)
         except ValueError:
-            print ('Invalid Number')
+            print('Invalid Number')
 
-    if idamp==1:
-        damp=damp_num
-        Q=1./(2.*damp_num)
+    if idamp == 1:
+        damp = damp_num
+        Q = 1./(2.*damp_num)
     else:
-        Q=damp_num
-        damp=1./(2.*Q)
+        Q = damp_num
+        damp = 1./(2.*Q)
 
-    return damp,Q
+    return damp, Q
 
 ##########################################################################
+
 
 def enter_fn():
     """
     Enter the natural frequency (Hz)
     """
-    print (" ")
-    print (" Select units ")
-    print (" 1=English  2=metric")
-    iu=GetInteger2()
+    print(" ")
+    print(" Select units ")
+    print(" 1=English  2=metric")
+    iu = GetInteger2()
 
-    print (" ")
-    print (" Select fn input method ")
-    print (" 1=fn   2=fn from mass & stiffness")
-    im=GetInteger2()
+    print(" ")
+    print(" Select fn input method ")
+    print(" 1=fn   2=fn from mass & stiffness")
+    im = GetInteger2()
 
-    if(im==1):
-        print (" ")
-        print (" Enter fn (Hz) ")
-        fn=enter_float()
-        omegan=2*pi*fn
+    if(im == 1):
+        print(" ")
+        print(" Enter fn (Hz) ")
+        fn = enter_float()
+        omegan = 2*pi*fn
     else:
 
-        if(iu==1):
+        if(iu == 1):
             print(" Enter mass (lbm)")
         else:
             print(" Enter mass (kg)")
 
-        mass=enter_float()
+        mass = enter_float()
 
-        if(iu==1):
-            mass/=386
+        if(iu == 1):
+            mass /= 386
 
-        if(iu==1):
+        if(iu == 1):
             print(" Enter stiffness (lbf/in)")
         else:
             print(" Enter stiffness (N/m)")
 
-        stiffness=enter_float()
-        omegan=sqrt(stiffness/mass)
-        fn=omegan/(2*pi)
+        stiffness = enter_float()
+        omegan = sqrt(stiffness/mass)
+        fn = omegan/(2*pi)
 
-    period=1/fn
-    return iu,fn,omegan,period
+    period = 1/fn
+    return iu, fn, omegan, period
 
 ##########################################################################
+
 
 def enter_float():
     """
@@ -772,15 +800,16 @@ def enter_float():
     number_float = None
     while not number_float:
         try:
-            s =stdin.readline()
+            s = stdin.readline()
             number_float = float(s)
             if number_float == 0:
                 break
         except ValueError:
-            print ('Invalid Number.  Enter number. ')
+            print('Invalid Number.  Enter number. ')
     return number_float
 
 ##########################################################################
+
 
 def enter_int():
     """
@@ -789,51 +818,66 @@ def enter_int():
     number_int = None
     while not number_int:
         try:
-            s =stdin.readline()
+            s = stdin.readline()
             number_int = int(s)
         except ValueError:
-            print ('Invalid Number.  Enter number. ')
+            print('Invalid Number.  Enter number. ')
     return number_int
 
 ##########################################################################
 
-def WriteData1(nn,aa,output_file_path):
+
+def WriteData1(nn, aa, output_file_path):
     """
     Write one column of data to an external ASCII text file
     """
-    output_file = output_file_path.rstrip('\n')
-    outfile = open(output_file,"w")
-    for i in range (0, nn):
-        outfile.write(' %10.6e \n' %aa[i])
+    # output_file = output_file_path.rstrip('\n')
+    # outfile = open(output_file, "w")
+    if os.path.exists(output_file_path):
+        outfile = open(output_file_path, "a")
+    else:
+        outfile = open(output_file_path, "w")
+    for i in range(0, nn):
+        outfile.write(' %10.6e \n' % aa[i])
     outfile.close()
-    
-##########################################################################   
 
-def WriteData2(nn,aa,bb,output_file_path):
+##########################################################################
+
+
+def WriteData2(nn, aa, bb, output_file_path):
     """
     Write two columns of data to an external ASCII text file
     """
-    output_file = output_file_path.rstrip('\n')
-    outfile = open(output_file,"w")
-    for i in range (0, nn):
-        outfile.write(' %10.6e \t %8.4e \n' %  (aa[i],bb[i]))
+    # output_file = output_file_path.rstrip('\n')
+    # if output_file_path.is_file():
+    if os.path.exists(output_file_path):
+        outfile = open(output_file_path, "a")
+    else:
+        outfile = open(output_file_path, "w")
+    for i in range(0, nn):
+        outfile.write(' %10.6e \t %8.4e \n' % (aa[i], bb[i]))
     outfile.close()
 
 ########################################################################
 
 
-def WriteData3(nn,aa,bb,cc,output_file_path):
+def WriteData3(nn, aa, bb, cc, output_file_path):
     """
     Write three columns of data to an external ASCII text file
     """
-    outfile = open(output_file_path,"w")
-    for i in range (0, int(nn)):
-        outfile.write(' %8.4e \t %8.4e \t %8.4e \n' %  (aa[i],bb[i],cc[i]))
+    # outfile = open(output_file_path, "w")
+    if os.path.exists(output_file_path):
+        outfile = open(output_file_path, "a")
+    else:
+        outfile = open(output_file_path, "w")
+    for i in range(0, int(nn)):
+        outfile.write(' %8.4e \t %8.4e \t %8.4e \n' % (aa[i], bb[i], cc[i]))
     outfile.close()
 
 #########################################################################
 
-def time_history_plot(a,b,n,xlab,ylab,ptitle,stitle):
+
+def time_history_plot(a, b, n, xlab, ylab, ptitle, stitle, directory):
     """
     Plot a time history
        a=time   b=amplitude
@@ -845,18 +889,33 @@ def time_history_plot(a,b,n,xlab,ylab,ptitle,stitle):
        ptitle=plot title
        stitle=save figure as filename
     """
-    plt.figure(n)
+
+    directory += "/time_history"
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    plt.figure(n, figsize=[12, 8])
     plt.plot(a, b, linewidth=1.0)
     plt.xlabel(xlab)
     plt.ylabel(ylab)
     plt.grid(True)
+    timestamp = str(datetime.datetime.now())
+    timestamp = timestamp.replace(' ', '-')
+    timestamp = timestamp.replace('.', '_')
+    timestamp = timestamp.replace(':', '-')
+    ptitle = ptitle + timestamp
     plt.title(ptitle)
-    plt.savefig(stitle)
+    stitle = stitle + timestamp + ".png"
+    # savepath = directory + "/" + stitle
+    savepath = os.path.join(directory, stitle)
+    plt.savefig(savepath)
     plt.draw()
 
 #########################################################################
 
-def histogram_plot(b,bins,n,ylab,stitle):
+
+def histogram_plot(b, bins, n, ylab, stitle):
     """
     Plot a time history
        b=amplitude
@@ -869,11 +928,11 @@ def histogram_plot(b,bins,n,ylab,stitle):
        ptitle=plot title
        stitle=save figure as filename
     """
-    plt.figure(n)
+    plt.figure(n, figsize=[12, 8])
     hist, bins = np.histogram(b, bins=21, density=False)
     width = 0.7*(bins[1]-bins[0])
     center = (bins[:-1]+bins[1:])/2
-    plt.bar(center, hist, align = 'center', width = width) 
+    plt.bar(center, hist, align='center', width=width)
     plt.ylabel('Counts')
     plt.xlabel(ylab)
     plt.title('Histogram')
@@ -882,7 +941,8 @@ def histogram_plot(b,bins,n,ylab,stitle):
 
 #########################################################################
 
-def srs_plot_pn(srs_type,unit,fn,x_pos,x_neg,damp,stitle):
+
+def srs_plot_pn(srs_type, unit, fn, x_pos, x_neg, damp, stitle):
     """
     Plot and SRS with both positive and negative curves.
        srs_type = 1 for acceleration
@@ -901,40 +961,37 @@ def srs_plot_pn(srs_type,unit,fn,x_pos,x_neg,damp,stitle):
          stitle = output figure filename
     """
 
+    if(srs_type != 1 and srs_type != 2 and srs_type != 3):
+        srs_type = 1
 
-    if(srs_type !=1 and srs_type !=2 and srs_type !=3):
-        srs_type=1
+    if(unit != 1 and unit != 2):
+        unit = 1
 
-    if(unit !=1 and unit !=2):
-        unit=1
+    if(srs_type == 1):  # acceleration
+        astr = 'Acceleration'
 
+        if(unit == 1):  # English
+            ymetric = 'Peak Accel (G)'
+        if(unit == 2):  # metric
+            ymetric = 'Peak Accel (m/sec^2)'
 
-    if(srs_type==1): # acceleration
-        astr='Acceleration'
+    if(srs_type == 2):  # pseudo velocity
+        astr = 'Pseudo Velocity'
 
-        if(unit==1): # English
-            ymetric='Peak Accel (G)'
-        if(unit==2): # metric
-            ymetric='Peak Accel (m/sec^2)'
+        if(unit == 1):  # English
+            ymetric = 'Peak Velocity (in/sec)'
+        if(unit == 2):  # metric
+            ymetric = 'Peak Velocity (m/sec)'
 
-    if(srs_type==2): # pseudo velocity
-        astr='Pseudo Velocity'
+    if(srs_type == 3):  # relative displacement
+        astr = 'Relative Displacement'
 
-        if(unit==1): # English
-            ymetric='Peak Velocity (in/sec)'
-        if(unit==2): # metric
-            ymetric='Peak Velocity (m/sec)'
-
-    if(srs_type==3): # relative displacement
-        astr='Relative Displacement'
-
-        if(unit==1): # English
-            ymetric='Relative Disp (in)'
-        if(unit==2): # metric
-            x_pos/=1000
-            x_neg/=1000
-            ymetric='Relative Disp (mm)'
-
+        if(unit == 1):  # English
+            ymetric = 'Relative Disp (in)'
+        if(unit == 2):  # metric
+            x_pos /= 1000
+            x_neg /= 1000
+            ymetric = 'Relative Disp (mm)'
 
     plt.plot(fn, x_pos, label="positive")
     plt.plot(fn, x_neg, label="negative")
@@ -942,28 +999,29 @@ def srs_plot_pn(srs_type,unit,fn,x_pos,x_neg,damp,stitle):
     plt.yscale('log')
     plt.grid(True)
 #
-    Q=1/(2*damp)
-    title_string= astr + ' Shock Response Spectrum Q='+str(Q)
+    Q = 1/(2*damp)
+    title_string = astr + ' Shock Response Spectrum Q='+str(Q)
 #
-    for i in range(1,200):
-        if(Q==float(i)):
-            title_string= astr +' Shock Response Spectrum Q='+str(i)
-            break;
+    for i in range(1, 200):
+        if(Q == float(i)):
+            title_string = astr + ' Shock Response Spectrum Q='+str(i)
+            break
 #
     plt.title(title_string)
     plt.xlabel('Natural Frequency (Hz) ')
     plt.ylabel(ymetric)
     plt.grid(True, which="both")
     plt.savefig(stitle)
-    if(srs_type==1):
+    if(srs_type == 1):
         plt.legend(loc="upper left")
-    if(srs_type==2):
+    if(srs_type == 2):
         plt.legend(loc="upper left")
-    if(srs_type==3):
-        plt.legend(loc="upper right")      
+    if(srs_type == 3):
+        plt.legend(loc="upper right")
     plt.draw()
 
 #########################################################################
+
 
 def MatrixMax(input_matrix):
     """
@@ -973,102 +1031,101 @@ def MatrixMax(input_matrix):
 
 #########################################################################
 
-def WriteArray(aa,output_file_path):
+
+def WriteArray(aa, output_file_path):
     """
     Write array to file
     """
     output_file = output_file_path.rstrip('\n')
-    
-    if sys.version_info[0] == 2:            
-        outFile = open(output_file, 'w')     
-    
-    if sys.version_info[0] == 3:            
-        outFile = open(output_file, 'wb')     
+
+    if sys.version_info[0] == 2:
+        outFile = open(output_file, 'w')
+
+    if sys.version_info[0] == 3:
+        outFile = open(output_file, 'wb')
 #
-    np.savetxt(outFile, aa,fmt='%8.4e', delimiter='\t')
+    np.savetxt(outFile, aa, fmt='%8.4e', delimiter='\t')
     outFile.close()
 
 ##########################################################################
+
 
 def SizeArray(input_matrix):
     """
     Return the size of an array
     """
-    nrows=input_matrix.shape[0]
-    ncolumns=input_matrix.shape[1]
-    return nrows,ncolumns
-    
+    nrows = input_matrix.shape[0]
+    ncolumns = input_matrix.shape[1]
+    return nrows, ncolumns
+
 ##########################################################################
 
-def small(tt,input_matrix,k):
+
+def small(tt, input_matrix, k):
     """
     Return size of array while retaining max and min values
     in each window
     """
-    n=len(input_matrix)
-    
-    if(k<2):
-        k=2
-      
-    iflag=0
-    
-    i=0
-    m=0
-    
-    B=np.zeros(n,'f')
-    T=np.zeros(n,'f')
-    
-    while(iflag==0):
-        
-#        print i,(i+k+1),n
-                
-        if((i+k+1)<n):
-            a=max(input_matrix[i:i+k+1])
-            b=min(input_matrix[i:i+k+1])
-            p=floor((i+i+k+1)/2)
+    n = len(input_matrix)
 
-        else:     
-            if(i<=(n-1)):
-                a=max(input_matrix[i:n-1])
-                b=min(input_matrix[i:n-1])       
-                p=floor((i+n)/2) 
-                
-            iflag=1
+    if(k < 2):
+        k = 2
 
-            
-        if(p>=n):
-            p=n-1
-            
-        if(i>(n-1)):
-            iflag=1
+    iflag = 0
+
+    i = 0
+    m = 0
+
+    B = np.zeros(n, 'f')
+    T = np.zeros(n, 'f')
+
+    while(iflag == 0):
+
+        #        print i,(i+k+1),n
+
+        if((i+k+1) < n):
+            a = max(input_matrix[i:i+k+1])
+            b = min(input_matrix[i:i+k+1])
+            p = floor((i+i+k+1)/2)
+
+        else:
+            if(i <= (n-1)):
+                a = max(input_matrix[i:n-1])
+                b = min(input_matrix[i:n-1])
+                p = floor((i+n)/2)
+
+            iflag = 1
+
+        if(p >= n):
+            p = n-1
+
+        if(i > (n-1)):
+            iflag = 1
             break
- 
-        if(m>(n-1)):
-            print ('m limit')
-            iflag=1
+
+        if(m > (n-1)):
+            print('m limit')
+            iflag = 1
             break
-              
-        
-        B[m]=a
-        T[m]=tt[i] 
-        m+=1
 
-        
-        B[m]=b
-        T[m]=tt[p]
-  
-        m+=1        
-            
-        i=i+k+2    
-    
-        
+        B[m] = a
+        T[m] = tt[i]
+        m += 1
 
-    output_matrix=B[0:m-1]
-    TT=T[0:m-1]
-    
-    return TT,output_matrix    
+        B[m] = b
+        T[m] = tt[p]
+
+        m += 1
+
+        i = i+k+2
+
+    output_matrix = B[0:m-1]
+    TT = T[0:m-1]
+
+    return TT, output_matrix
 
 ################################################################################
+
 
 def material():
     """
@@ -1079,32 +1136,32 @@ def material():
     print(' 1=aluminum  2=steel  3=G10  4=other ')
     imat = GetInteger_n(4)
 
-    if(imat==1):      # aluminum
-        E=1.0e+07
-        rho=0.1
-        mu=0.3
+    if(imat == 1):      # aluminum
+        E = 1.0e+07
+        rho = 0.1
+        mu = 0.3
 
-    if(imat==2):      # steel
-        E=3.0e+07
-        rho=0.285
-        mu=0.3
+    if(imat == 2):      # steel
+        E = 3.0e+07
+        rho = 0.285
+        mu = 0.3
 
-    if(imat==3):      # G10
-        E=2.7e+06
-        rho=0.065
-        mu=0.12
+    if(imat == 3):      # G10
+        E = 2.7e+06
+        rho = 0.065
+        mu = 0.12
 
-    if(imat==4):
+    if(imat == 4):
         print(' ')
-        print(' Enter elastic modulus (lbf/in^2)');
-        E=enter_float()
+        print(' Enter elastic modulus (lbf/in^2)')
+        E = enter_float()
         print(' ')
         print(' Enter mass density (lbm/in^3)')
-        rho=enter_float()
+        rho = enter_float()
         print(' ')
         print(' Enter Poisson ratio')
-        mu=enter_float()
+        mu = enter_float()
 
-    rho=rho/386.
+    rho = rho/386.
 
-    return E,rho,mu
+    return E, rho, mu

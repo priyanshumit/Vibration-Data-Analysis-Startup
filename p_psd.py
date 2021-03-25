@@ -11,6 +11,8 @@
 ########################################################################
 
 from __future__ import print_function
+import datetime
+import os
 
 import sys
 
@@ -40,7 +42,7 @@ import matplotlib.pyplot as plt
 ########################################################################
 
 
-class READ_DATA:
+class READ_DATA_PSD:
 
     def __init__(self):
         pass
@@ -54,13 +56,14 @@ class READ_DATA:
 
     def read_and_stats(self):
 
-        label = "Enter the input time history"
+        # label = "Enter the input time history"
+        label = "acceleration_data.csv"
 
         a, b, num = read_two_columns_from_dialog(label)
 
         sr, dt, ave, sd, rms, skew, kurtosis, dur = signal_stats(a, b, num)
 
-        sr, dt = READ_DATA.check_data(a, b, num, sr, dt)
+        sr, dt = READ_DATA_PSD.check_data(a, b, num, sr, dt)
 
         return a, b, num, sr, dt, dur
 
@@ -80,17 +83,27 @@ def GetString():
 ########################################################################
 
 
-def select_options(num, dt):
+def select_options(num, dt, window):
 
-    print(" ")
-    print(" Remove mean:  1=yes  2=no ")
+    # print(" ")
+    # print(" Remove mean:  1=yes  2=no ")
 
-    mr_choice = GetInteger2()
+    # mr_choice = GetInteger2()
+    mr_choice = 1
 
-    print(" ")
-    print(" Select Window: 1=Rectangular 2=Hanning ")
+    # print(" ")
+    # print(" Select Window: 1=Rectangular 2=Hanning ")
 
-    h_choice = GetInteger2()
+    if window == "Rectangular":
+        h_choice = 1
+    elif window == "Hann":
+        h_choice = 2
+    elif window == "Blackman":
+        h_choice = 3
+    elif window == "Hamming":
+        h_choice = 4
+
+    # h_choice = GetInteger2()
 
     n = num
 
@@ -126,9 +139,10 @@ def select_options(num, dt):
 
     ijk = 0
     while ijk == 0:
-        print(' ')
-        print(' Choose the Number of Segments:  ')
-        s = stdin.readline()
+        # print(' ')
+        # print(' Choose the Number of Segments:  ')
+        # s = stdin.readline()
+        s = 1
         NW = int(s)
         for j in range(0, len(i_seg)):
             if NW == i_seg[j]:
@@ -246,7 +260,7 @@ class PSD:
 ########################################################################
 
 
-def psd_plots(a, b, freq, full, rms):
+def psd_plots(a, b, freq, full, rms, idx):
 
     pmin = 10**40
     pmax = 10**-40
@@ -290,9 +304,9 @@ def psd_plots(a, b, freq, full, rms):
             ymin = 10**i
             break
 
-    print(" ")
-    print(" Is the input data dimension Accel(G) ?")
-    print(" 1=yes  2=no")
+    # print(" ")
+    # print(" Is the input data dimension Accel(G) ?")
+    # print(" 1=yes  2=no")
 
     # ind = GetInteger2()
     ind = 1
@@ -310,29 +324,45 @@ def psd_plots(a, b, freq, full, rms):
     print(" view plots ")
 
     time_history_plot(a, b, 1, 'Time(sec)', th_label,
-                      'Time History', 'time_history')
+                      'Time History', 'time_history', 'PSD')
 
     plt.gca().set_autoscale_on(False)
 
-    plt.figure(2)
+    directory = "PSD/magnitude"
+
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+
+    plt.figure(2, figsize=[12, 8])
     plt.plot(freq, full)
-    title_string = 'Power Spectral Density   ' + \
-        str("%6.3g" % rms)+' GRMS Overall '
+    plt.plot(freq[idx], full[idx], '*')
+    title_string = 'PSD ' + \
+        str("%6.3g" % rms)+' GRMS Overall ' + str(datetime.datetime.now())
     plt.title(title_string)
     plt.xlim([xmin, xmax])
     plt.ylim([ymin, ymax])
     plt.ylabel(psd_label)
     plt.xlabel(' Frequency (Hz) ')
     plt.grid(True)
-    plt.savefig('power_spectral_density')
+    timestamp = str(datetime.datetime.now())
+    timestamp = timestamp.replace(' ', '-')
+    timestamp = timestamp.replace('.', '_')
+    timestamp = timestamp.replace(':', '-')
+    stitle = 'power_spectral_density' + timestamp + ".png"
+    # savepath = directory + "/" + stitle
+    # stitle = 'power_spectral_density' + str(datetime.datetime.now()) + ".png"
+    savepath = os.path.join(directory, stitle)
+    plt.savefig(savepath)
     plt.xscale('log')
     plt.yscale('log')
-    plt.show()
+    plt.show(block=False)
+    plt.pause(1)
+    plt.close('all')
 
 ########################################################################
 
 
-def psd_post(freq, full, rms):
+def psd_post(freq, full, rms, run_psd, output_psd):
     print(" ")
     print(" Overall RMS = %10.3g " % rms)
     print(" Three Sigma = %10.3g " % (3*rms))
@@ -342,22 +372,34 @@ def psd_post(freq, full, rms):
     print(" ")
     print(" Maximum:  Freq=%8.4g Hz   Amp=%8.4g " % (freq[idx], full[idx]))
 
-    print(" ")
-    print(" Write PSD data to file? 1=yes 2=no")
+    # print(" ")
+    # print(" Write PSD data to file? 1=yes 2=no")
     # iacc = GetInteger2()
-    iacc = 2
+    iacc = 1
 
     if(iacc == 1):
 
-        print(" ")
-        print(" Find output dialog box")
+        if(run_psd == 1):
 
-        root = tk.Tk()
-        root.withdraw()
-        output_file_path = asksaveasfilename(
-            parent=root, title="Enter the PSD output filename: ")
-        output_file = output_file_path.rstrip('\n')
-        mH = len(freq)
-        WriteData2(mH, freq, full, output_file)
+            # print(" ")
+            # print(" Find output dialog box")
 
+            # root = tk.Tk()
+            # root.withdraw()
+            # output_file_path = asksaveasfilename(
+            #     parent=root, title="Enter the PSD output filename: ")
+            # output_file = output_file_path.rstrip('\n')
+            # output_file = "psd_data"
+            output_file = input(
+                "Enter file name(without extension) to store psd data : ")
+            output_file = 'PSD/' + output_file + '.csv'
+            mH = len(freq)
+            WriteData2(mH, freq, full, output_file)
+            run_psd = 0
+        else:
+            output_file = output_psd
+            mH = len(freq)
+            WriteData2(mH, freq, full, output_file)
+
+    return (run_psd, output_file, idx)
 ########################################################################
