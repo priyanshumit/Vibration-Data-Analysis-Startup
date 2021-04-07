@@ -1,12 +1,13 @@
 import datetime
 import matplotlib.pyplot as plt
-from scipy.signal import windows
+from scipy.signal import windows, find_peaks
 import pandas as pd
 import pathlib
 import urllib.request
 from p_fft import *
 from p_psd import *
 import os
+import numpy as np
 
 
 def choices():
@@ -140,8 +141,29 @@ def fft_main(window, run_fft, output_file_file1, output_file_file2):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    ave_line = [np.mean(zz)]*len(ff)
+    thresh = (np.mean(zz))*2.5
+
+    peaks, _ = find_peaks(zz, height=thresh)
+    # print(peaks.shape)
+    if(len(peaks) >= 50):
+        print("data is white noise")
+        return 0
+    ratio = [ff[peaks[i]] for i in range(len(peaks))]
+    ratio = [x/ff[idx] for x in ratio]
+    # print(ratio)
+    # sr_no = [i for i in range(len(ratio))]
+    # ratio_dict = {'sno': sr_no, 'ratio': ratio}
+    # df = pd.DataFrame(ratio_dict)
+    df = pd.DataFrame(ratio)
+    output_ratio_file = 'FFT/ratio.csv'
+    df.to_csv(output_ratio_file, header=False)
+    # WriteData2(len(ratio), sr_no, ratio, output_ratio_file)
+
     plt.figure(2, figsize=[12, 8])
     plt.plot(ff, zz)
+    plt.plot(ff, ave_line)
+    plt.plot(ff[peaks], zz[peaks], "x")
     plt.plot(ff[idx], zz[idx], '*')
     plt.grid(True)
     ptitle = 'FFT Magnitude ' + str(datetime.datetime.now())
