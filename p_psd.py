@@ -13,6 +13,8 @@
 from __future__ import print_function
 import datetime
 import os
+from scipy.signal import find_peaks
+import numpy as np
 
 import sys
 
@@ -333,8 +335,15 @@ def psd_plots(a, b, freq, full, rms, idx):
     if not os.path.exists(directory):
         os.makedirs(directory)
 
+    ave_line = [np.mean(full)]*len(freq)
+    thresh = (np.mean(full))*1.5
+
+    peaks, _ = find_peaks(full, height=thresh)
     plt.figure(2, figsize=[12, 8])
     plt.plot(freq, full)
+    plt.plot(freq[peaks], full[peaks], "x")
+    plt.plot(freq, ave_line)
+
     plt.plot(freq[idx], full[idx], '*')
     title_string = 'PSD ' + \
         str("%6.3g" % rms)+' GRMS Overall ' + str(datetime.datetime.now())
@@ -352,9 +361,9 @@ def psd_plots(a, b, freq, full, rms, idx):
     # savepath = directory + "/" + stitle
     # stitle = 'power_spectral_density' + str(datetime.datetime.now()) + ".png"
     savepath = os.path.join(directory, stitle)
-    plt.savefig(savepath)
     plt.xscale('log')
     plt.yscale('log')
+    plt.savefig(savepath)
     plt.show(block=False)
     plt.pause(1)
     plt.close('all')
